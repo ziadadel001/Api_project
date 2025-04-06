@@ -16,7 +16,7 @@ class permissionsController extends Controller implements HasMiddleware
     {
         return [
             new Middleware('permission:view permissions', only: ['index']),
-            new Middleware('permission:edit permissions', only: ['edit']),
+            new Middleware('permission:edit permissions', only: ['edit', 'update']),
             new Middleware('permission:create permissions', only: ['create']),
             new Middleware('permission:delete permissions', only: ['destroy']),
         ];
@@ -25,7 +25,7 @@ class permissionsController extends Controller implements HasMiddleware
     //* this method will show permissions page
     public function index()
     {
-        $permissions = Permission::orderBy('created_at', 'DESC')->paginate(5);
+        $permissions = Permission::latest()->paginate(5);
         return view('permissions.list', compact('permissions'));
     }
 

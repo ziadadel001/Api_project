@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\dashboard\permissionsController;
+use App\Http\Controllers\dashboard\productsController;
 use App\Http\Controllers\dashboard\RoleController;
 use App\Http\Controllers\dashboard\UserController;
 use App\Http\Controllers\ProfileController;
@@ -67,6 +68,19 @@ Route::middleware('auth')->group(function () {
 
     //* Users routes for destroy
     Route::delete('/Users', [UserController::class, 'destroy'])->name('user.destroy');
+
+
+    //* products routes for showlist and create one
+    Route::get('/products', [productsController::class, 'index'])->name('product.index');
+    Route::get('/products/create', [productsController::class, 'create'])->name('product.create');
+    Route::post('/products', [productsController::class, 'store'])->name('product.store');
+
+    //* products routes for edit and update 
+    Route::get('/products/{id}/edit', [productsController::class, 'edit'])->name('product.edit');
+    Route::post('/products/{id}', [productsController::class, 'update'])->name('product.update');
+
+    //* products routes for destroy
+    Route::delete('/products', [productsController::class, 'destroy'])->name('product.destroy');
 });
 
 require __DIR__ . '/auth.php';

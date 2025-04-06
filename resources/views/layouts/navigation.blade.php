@@ -17,31 +17,38 @@
                     </x-nav-link>
 
                 </div>
-                {{-- @can('view permissions') --}}
+                @can('view permissions')
                     
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('permission.index')" :active="request()->routeIs('permission.index')">
                         {{ __('Permissions') }}
                     </x-nav-link>
             </div>
-            {{-- @endcan
-            @can('view roles') --}}
+            @endcan
+            @can('view roles')
 
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <x-nav-link :href="route('role.index')" :active="request()->routeIs('Role.index')">
                     {{ __('Roles') }}
                 </x-nav-link>
         </div>
-        {{-- @endcan
-     
-        @can('view users') --}}
+        @endcan
+        @can('view product')
+
+            <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                <x-nav-link :href="route('product.index')" :active="request()->routeIs('product.index')">
+                    {{ __('Products') }}
+                </x-nav-link>
+        </div>
+        @endcan
+        @can('view users')
 
             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                 <x-nav-link :href="route('user.index')" :active="request()->routeIs('user.index')">
                     {{ __('Users') }}
                 </x-nav-link>
         </div>
-        {{-- @endcan --}}
+        @endcan
 
             </div>
 
