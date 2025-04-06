@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Roles\StoreRoleRequest;
+use App\Http\Requests\Roles\UpdateRoleRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
@@ -37,32 +39,25 @@ class RoleController extends Controller implements HasMiddleware
     }
 
     //* this method will insert role in DB
-    public function store(Request $request)
+    public function store(StoreRoleRequest $request)
     {
-        // validate the Role name 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:roles|min:3'
-        ]);
 
-        if ($validator->passes()) {
-            // store the Role in DB if vaild 
-            $role =  Role::create(['name' => $request->name]);
-            if (!empty($request->permission)) {
-                foreach ($request->permission as $name) {
-                    $role->givePermissionTo($name);
-                }
+        // store the Role in DB if vaild 
+        $role =  Role::create(['name' => $request->name]);
+
+        if (!empty($request->permission)) {
+            foreach ($request->permission as $name) {
+                $role->givePermissionTo($name);
             }
-            return redirect()->route('role.index')->with('success', 'Role added successfully.');
-        } else {
-            return redirect()->route('role.create')->withInput()->withErrors($validator);
         }
+        return redirect()->route('role.index')->with('success', 'Role added successfully.');
     }
 
 
 
 
     //* this method will show edit role page
-    public function edit($id)
+    public function edit(string $id)
     {
         $role = Role::findOrFail($id);
         $HasPermissions = $role->permissions->pluck('name');
@@ -74,27 +69,18 @@ class RoleController extends Controller implements HasMiddleware
 
 
     //* this method will update role in DB
-    public function update(int $id, Request $request)
+    public function update(string $id, UpdateRoleRequest $request)
     {
         $role = Role::findOrFail($id);
 
-        // validate the Role name 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:3|unique:roles,name,' . $id . ',id'
-        ]);
 
-        if ($validator->passes()) {
-            $role->name = $request->name;
-            $role->save();
-            if (!empty($request->permission)) {
-                $role->syncPermissions($request->permission);
-            } else {
-                $role->syncPermissions([]);
-            }
-            return redirect()->route('role.index')->with('success', 'Role updated successfully.');
+        $role->update($request->validated());
+        if (!empty($request->permission)) {
+            $role->syncPermissions($request->permission);
         } else {
-            return redirect()->route('role.edit', $id)->withInput()->withErrors($validator);
+            $role->syncPermissions([]);
         }
+        return redirect()->route('role.index')->with('success', 'Role updated successfully.');
     }
 
     //* this method will delete role in DB

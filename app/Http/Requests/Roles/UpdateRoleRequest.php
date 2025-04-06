@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\permissions;
+namespace App\Http\Requests\Roles;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdatePermissionsRequest extends FormRequest
+class UpdateRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,7 +24,7 @@ class UpdatePermissionsRequest extends FormRequest
         $id = $this->route('id');
 
         return [
-            'name' => 'required|min:3|unique:permissions,name,' . $id . ',id',
+            'name' => 'required|min:3|unique:roles,name,' . $id . ',id'
         ];
     }
 }
