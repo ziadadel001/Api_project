@@ -83,10 +83,9 @@ class productsController extends Controller implements HasMiddleware
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProductRequest $request, string $id)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        $Product = Product::findOrFail($id);
-        $Product->update($request->validated());
+        $product->update($request->validated());
         return redirect()->route('product.index')->with('success', 'product Updated successfully.');
     }
 

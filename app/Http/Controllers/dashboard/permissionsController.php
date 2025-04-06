@@ -40,7 +40,8 @@ class permissionsController extends Controller implements HasMiddleware
     public function store(StorePermissiosRequest $request)
     {
         // store the permission in DB if vaild 
-        Permission::create(['name' => $request->name]);
+        Permission::create($request->validated());
+
         return redirect()->route('permission.index')->with('success', 'Permission added successfully.');
     }
 
@@ -54,10 +55,9 @@ class permissionsController extends Controller implements HasMiddleware
 
 
     //* this method will update permission in DB
-    public function update(string $id, UpdatePermissionsRequest $request)
+    public function update(Permission $permission, UpdatePermissionsRequest $request)
     {
         //find and update the permission
-        $permission = Permission::findOrFail($id);
         $permission->update($request->validated());
         return redirect()->route('permission.index')->with('success', 'Permission updated successfully.');
     }

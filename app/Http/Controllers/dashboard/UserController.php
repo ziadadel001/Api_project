@@ -89,10 +89,8 @@ class UserController extends Controller  implements HasMiddleware
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateUserRequest $request, string $id)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $user = user::findOrFail($id);
-
 
         $user->update($request->validated());
 

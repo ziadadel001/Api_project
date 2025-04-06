@@ -69,11 +69,8 @@ class RoleController extends Controller implements HasMiddleware
 
 
     //* this method will update role in DB
-    public function update(string $id, UpdateRoleRequest $request)
+    public function update(Role $role, UpdateRoleRequest $request)
     {
-        $role = Role::findOrFail($id);
-
-
         $role->update($request->validated());
         if (!empty($request->permission)) {
             $role->syncPermissions($request->permission);
