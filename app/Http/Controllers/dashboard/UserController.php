@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Users\StoreUserRequest;
+use App\Http\Requests\Users\UpdateUserRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
@@ -46,30 +48,28 @@ class UserController extends Controller  implements HasMiddleware
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name' => 'required|min:3',
-                'email' => 'required|email|unique:users',
-                'password' => 'required|min:8|same:confirm_password',
-                'confirm_password' => 'required'
-            ]
-        );
 
-        if ($validator->passes()) {
-            $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
+        try {
+            $validated = $request->validated();
 
-            $user->save();
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
             $user->syncRoles($request->role);
+
+            // Optional: Send verification email
+            // $user->sendEmailVerificationNotification();
+
             return redirect()->route('user.index')->with('success', 'user Added successfully.');
-        } else {
-            return redirect()->route('user.create')->withInput()->withErrors($validator);
+        } catch (\Exception $e) {
+            return back()
+                ->withInput()
+                ->with('error', 'Error creating user: ' . $e->getMessage());
         }
     }
 
@@ -89,27 +89,15 @@ class UserController extends Controller  implements HasMiddleware
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
         $user = user::findOrFail($id);
 
-        $validator = Validator::make(
-            $request->all(),
-            [
-                'name' => 'required|min:3',
-                'email' => 'required|email|unique:users,email,' . $id . ',id',
-            ]
-        );
 
-        if ($validator->passes()) {
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->save();
-            $user->syncRoles($request->role);
-            return redirect()->route('user.index')->with('success', 'user Updated successfully.');
-        } else {
-            return redirect()->route('user.edit', $id)->withInput()->withErrors($validator);
-        }
+        $user->update($request->validated());
+
+        $user->syncRoles($request->role);
+        return redirect()->route('user.index')->with('success', 'user Updated successfully.');
     }
 
     /**
