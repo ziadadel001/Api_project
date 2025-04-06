@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\permissions\StorePermissiosRequest;
+use App\Http\Requests\permissions\UpdatePermissionsRequest;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -36,21 +37,13 @@ class permissionsController extends Controller implements HasMiddleware
     }
 
     //* this method will insert permission in DB
-    public function store(Request $request)
+    public function store(StorePermissiosRequest $request)
     {
-        // validate the permission name 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|unique:permissions|min:3'
-        ]);
-
-        if ($validator->passes()) {
-            // store the permission in DB if vaild 
-            Permission::create(['name' => $request->name]);
-            return redirect()->route('permission.index')->with('success', 'Permission added successfully.');
-        } else {
-            return redirect()->route('permission.create')->withInput()->withErrors($validator);
-        }
+        // store the permission in DB if vaild 
+        Permission::create(['name' => $request->name]);
+        return redirect()->route('permission.index')->with('success', 'Permission added successfully.');
     }
+
     //* this method will show edit permission page
     public function edit($id)
     {
@@ -61,24 +54,12 @@ class permissionsController extends Controller implements HasMiddleware
 
 
     //* this method will update permission in DB
-    public function update(int $id, Request $request)
+    public function update(string $id, UpdatePermissionsRequest $request)
     {
-        //find the permission
+        //find and update the permission
         $permission = Permission::findOrFail($id);
-
-        // validate the permission name 
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|min:3|unique:permissions,name,' . $id . ',id'
-        ]);
-
-        if ($validator->passes()) {
-            // update the permission in DB if vaild 
-            $permission->name = $request->name;
-            $permission->save();
-            return redirect()->route('permission.index')->with('success', 'Permission updated successfully.');
-        } else {
-            return redirect()->route('permission.edit', $id)->withInput()->withErrors($validator);
-        }
+        $permission->update($request->validated());
+        return redirect()->route('permission.index')->with('success', 'Permission updated successfully.');
     }
 
     //* this method will delete permission in DB
